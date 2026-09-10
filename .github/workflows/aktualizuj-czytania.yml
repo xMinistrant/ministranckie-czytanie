@@ -1,0 +1,38 @@
+name: Aktualizuj czytania
+
+on:
+  schedule:
+    - cron: "7 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  aktualizacja:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pobierz repozytorium
+        uses: actions/checkout@v4
+
+      - name: Uruchom Pythona
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Zainstaluj biblioteki
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Pobierz dzisiejsze czytania
+        run: |
+          python update_readings.py
+
+      - name: Zapisz zmiany
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add readings.json
+          git diff --cached --quiet || git commit -m "Automatyczna aktualizacja czytań"
+          git push
