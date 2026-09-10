@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-
 # =========================
 # DATA
 # =========================
@@ -13,15 +12,15 @@ from zoneinfo import ZoneInfo
 now = datetime.now(ZoneInfo("Europe/Warsaw"))
 date_iso = now.strftime("%Y-%m-%d")
 
+days = [
+    "poniedziałek", "wtorek", "środa",
+    "czwartek", "piątek", "sobota", "niedziela"
+]
+
 months = [
     "stycznia", "lutego", "marca", "kwietnia",
     "maja", "czerwca", "lipca", "sierpnia",
     "września", "października", "listopada", "grudnia"
-]
-
-days = [
-    "poniedziałek", "wtorek", "środa",
-    "czwartek", "piątek", "sobota", "niedziela"
 ]
 
 date_pl = (
@@ -29,18 +28,15 @@ date_pl = (
     f"{now.day} {months[now.month - 1]} {now.year}"
 )
 
-
 # =========================
-# POBRANIE STRONY KEP
+# POBIERZ STRONĘ
 # =========================
 
 url = f"https://episkopat.pl/liturgia/{date_iso}"
 
 response = requests.get(
     url,
-    headers={
-        "User-Agent": "Mozilla/5.0"
-    },
+    headers={"User-Agent": "Mozilla/5.0"},
     timeout=30
 )
 
@@ -48,75 +44,92 @@ response.raise_for_status()
 
 soup = BeautifulSoup(response.text, "html.parser")
 
-# Zamieniamy stronę na zwykły tekst.
-# Dzięki temu nie zależymy od tego,
-# czy KEP użyje h2, div, section itd.
 
-page_text = soup.get_text("\n", strip=True)
+# =========================
+# ZNAJDŹ KONKRETNY NAGŁÓWEK
+# =========================
 
-lines = []
+def find_heading(text):
+    for tag in soup.find_all(["h2", "h3", "h4"]):
+        value = " ".join(tag.stripped_strings).strip()
 
-for line in page_text.splitlines():
-    line = line.strip()
+        if value.rstrip(":").strip().lower() == text.lower():
+            return tag
 
-    if line:
-        lines.append(line)
+    return None
 
 
 # =========================
-# SZUKANIE SEKCJI
+# POBIERZ ZAWARTOŚĆ
 # =========================
 
-def znajdz_sekcje(start_name, stop_names):
+def get_section(title, next_titles):
 
-    start_index = None
+    heading = find_heading(title)
 
-    for i, line in enumerate(lines):
-
-        if line.rstrip(":").strip().lower() == start_name.lower():
-            start_index = i
-            break
-
-    if start_index is None:
+    if heading is None:
+        print("NIE ZNALEZIONO:", title)
         return None
 
+    parts = []
+
+    # Idziemy po elementach rodzica nagłówka
+    current = heading
+
+    while current:
+
+        current = current.find_next()
+
+        if current is None:
+            break
+
+        # Następny nagłówek kończy sekcję
+        if current.name in ["h2", "h3", "h4"]:
+
+            heading_text = " ".join(
+                current.stripped_strings
+            ).strip().rstrip(":").lower()
+
+            if heading_text in [x.lower() for x in next_titles]:
+                break
+
+        # Bierzemy tekst z paragrafów
+        if current.name == "p":
+
+            text = " ".join(
+                current.stripped_strings
+            ).strip()
+
+            if not text:
+                continue
+
+            # Pomijamy elementy techniczne
+            if "Copyright" in text:
+                break
+
+            if "Wygląda na to" in text:
+                break
+
+            if "Zgłoś błąd" in text:
+                break
+
+            parts.append(text)
+
+    # Usuwamy duplikaty
     result = []
 
-    for line in lines[start_index + 1:]:
+    for p in parts:
+        if p not in result:
+            result.append(p)
 
-        clean = line.rstrip(":").strip().lower()
-
-        if clean in [x.lower() for x in stop_names]:
-            break
-
-        # Pomijamy elementy strony, które nie są czytaniem
-        if "copyright" in line.lower():
-            break
-
-        if "wygląda na to, że twoja przeglądarka" in line.lower():
-            break
-
-        if "zgłoś błąd" in line.lower():
-            break
-
-        result.append(line)
-
-    # Usuwamy powtarzające się linie
-    cleaned = []
-
-    for line in result:
-
-        if line not in cleaned:
-            cleaned.append(line)
-
-    if len(cleaned) < 2:
+    if not result:
         return None
 
     # Pierwsza linia = sygnatura
-    reference = cleaned[0]
+    reference = result[0]
 
-    # Wszystko dalej = treść
-    text = "\n\n".join(cleaned[1:])
+    # Reszta = pełny tekst
+    text = "\n\n".join(result[1:])
 
     return {
         "reference": reference,
@@ -125,75 +138,46 @@ def znajdz_sekcje(start_name, stop_names):
 
 
 # =========================
-# CZYTANIA
+# ODCZYT CZYTAŃ
 # =========================
 
-first_reading = znajdz_sekcje(
+first_reading = get_section(
     "Pierwsze czytanie",
     [
         "Psalm responsoryjny",
-        "Drugie czytanie",
         "Werset przed Ewangelią (Alleluja)",
         "Ewangelia"
     ]
 )
 
-psalm = znajdz_sekcje(
+psalm = get_section(
     "Psalm responsoryjny",
     [
-        "Drugie czytanie",
         "Werset przed Ewangelią (Alleluja)",
         "Ewangelia"
     ]
 )
 
-second_reading = znajdz_sekcje(
+second_reading = get_section(
     "Drugie czytanie",
     [
+        "Psalm responsoryjny",
         "Werset przed Ewangelią (Alleluja)",
         "Ewangelia"
     ]
 )
 
-gospel = znajdz_sekcje(
+gospel = get_section(
     "Ewangelia",
     [
         "Patroni",
-        "Homilie"
+        "Liturgia na dzień"
     ]
 )
 
 
 # =========================
-# USUWANIE KOMENTARZA
-# =========================
-
-if gospel:
-
-    text = gospel["text"]
-
-    # Komentarz księdza zaczyna się po właściwym tekście Ewangelii.
-    # Odcinamy go na charakterystycznych słowach.
-
-    markers = [
-        "Nie ma chyba w Ewangelii",
-        "Miłość nieprzyjaciół nie polega",
-        "„Bądźcie miłosierni"
-    ]
-
-    for marker in markers:
-
-        position = text.find(marker)
-
-        if position >= 0:
-            text = text[:position]
-            break
-
-    gospel["text"] = text.strip()
-
-
-# =========================
-# ZAPIS
+# WYNIK
 # =========================
 
 data = {
@@ -205,6 +189,10 @@ data = {
     "gospel": gospel
 }
 
+
+# =========================
+# ZAPIS
+# =========================
 
 with open(
     "readings.json",
@@ -220,6 +208,7 @@ with open(
     )
 
 
+print()
 print("================================")
 print("AKTUALIZACJA CZYTAŃ")
 print("================================")
