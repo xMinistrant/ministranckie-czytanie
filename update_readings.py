@@ -4,6 +4,10 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+# =========================
+# DATA
+# =========================
+
 now = datetime.now(ZoneInfo("Europe/Warsaw"))
 date_iso = now.strftime("%Y-%m-%d")
 
@@ -14,81 +18,96 @@ months = [
 ]
 
 days = [
-    "poniedziałek", "wtorek", "środa", "czwartek",
-    "piątek", "sobota", "niedziela"
+    "poniedziałek", "wtorek", "środa",
+    "czwartek", "piątek", "sobota", "niedziela"
 ]
 
-date_pl = (
-    f"{days[now.weekday()]}, "
-    f"{now.day} {months[now.month - 1]} {now.year}"
-)
+date_pl = f"{days[now.weekday()]}, {now.day} {months[now.month - 1]} {now.year}"
+
+# =========================
+# STRONA KEP
+# =========================
 
 url = f"https://episkopat.pl/liturgia/{date_iso}"
 
 response = requests.get(
     url,
-    headers={"User-Agent": "Mozilla/5.0"},
+    headers={
+        "User-Agent": "Mozilla/5.0"
+    },
     timeout=30
 )
+
 response.raise_for_status()
 
 soup = BeautifulSoup(response.text, "html.parser")
 
 
-def pobierz_sekcje(naglowek_tekst):
-    naglowek = None
+# =========================
+# POMOCNICZA FUNKCJA
+# =========================
 
-    # Szukamy dokładnego nagłówka H2
+def clean(text):
+    return " ".join(text.split()).strip()
+
+
+def pobierz_sekcje(tytul):
+    """
+    Szuka dokładnego H2, np. 'Pierwsze czytanie',
+    a następnie pobiera elementy znajdujące się
+    pomiędzy tym H2 a następnym H2.
+    """
+
+    heading = None
+
     for h2 in soup.find_all("h2"):
-        tekst = " ".join(h2.stripped_strings).strip()
+        tekst = clean(h2.get_text(" ", strip=True))
 
-        if tekst.lower().rstrip(":") == naglowek_tekst.lower():
-            naglowek = h2
+        if tekst.rstrip(":").lower() == tytul.lower():
+            heading = h2
             break
 
-    if naglowek is None:
+    if heading is None:
         return None
 
-    # Bierzemy elementy pomiędzy tym nagłówkiem
-    # a następnym H2
     elementy = []
-    rodzic = naglowek.parent
 
-    if rodzic is None:
-        return None
+    # Idziemy po kolejnych elementach strony
+    for element in heading.find_all_next():
 
-    for element in rodzic.find_all(["p", "div"], recursive=True):
-        tekst = " ".join(element.stripped_strings).strip()
+        # Następny H2 = koniec tej sekcji
+        if element.name == "h2" and element != heading:
+            break
+
+        # Interesują nas paragrafy
+        if element.name != "p":
+            continue
+
+        tekst = clean(element.get_text(" ", strip=True))
 
         if not tekst:
             continue
 
-        # Odrzucamy komentarze i techniczne elementy
-        if "Copyright" in tekst:
-            continue
+        # Pomijamy techniczne elementy strony
+        if "Copyright ©" in tekst:
+            break
 
         if "Wygląda na to, że Twoja przeglądarka" in tekst:
-            continue
+            break
 
         if "Zgłoś błąd" in tekst:
-            continue
+            break
 
         elementy.append(tekst)
 
-    # Usuwamy duplikaty
-    czyste = []
-    for tekst in elementy:
-        if tekst not in czyste:
-            czyste.append(tekst)
-
-    if len(czyste) == 0:
+    if not elementy:
         return None
 
-    # Pierwszy tekst = sygnatura
-    reference = czyste[0]
+    # Pierwszy element = signtura
+    reference = elementy[0]
 
-    # Reszta = tekst czytania
-    text = "\n\n".join(czyste[1:])
+    # Pozostałe = właściwa treść
+    text = "\n\n".join(elementy[1:])
 
     return {
         "reference": reference,
@@ -96,11 +115,22 @@ def pobierz_sekcje(naglowek_tekst):
     }
 
 
+# =========================
+# CZYTANIA
+# =========================
+
 first_reading = pobierz_sekcje("Pierwsze czytanie")
+
 psalm = pobierz_sekcje("Psalm responsoryjny")
+
 second_reading = pobierz_sekcje("Drugie czytanie")
+
 gospel = pobierz_sekcje("Ewangelia")
 
+
+# =========================
+# DANE
+# =========================
 
 data = {
     "date": date_iso,
@@ -112,16 +142,20 @@ data = {
 }
 
 
-with open("readings.json", "w", encoding="utf-8") as f:
+# =========================
+# ZAPIS
+# =========================
+
+with open("readings.json", "w", encoding="utf-8") as file:
     json.dump(
         data,
-        f,
+        file,
         ensure_ascii=False,
         indent=2
     )
 
-print("Zaktualizowano czytania:", date_iso)
-print("Pierwsze:", bool(first_reading))
+print("Zaktualizowano:", date_iso)
+print("Pierwsze czytanie:", bool(first_reading))
 print("Psalm:", bool(psalm))
-print("Drugie:", bool(second_reading))
+print("Drugie czytanie:", bool(second_reading))
 print("Ewangelia:", bool(gospel))
