@@ -1,8 +1,10 @@
 import requests
 import json
+import re
 from bs4 import BeautifulSoup
 from datetime import datetime
 from zoneinfo import ZoneInfo
+
 
 # =========================
 # DATA
@@ -22,10 +24,14 @@ days = [
     "czwartek", "piątek", "sobota", "niedziela"
 ]
 
-date_pl = f"{days[now.weekday()]}, {now.day} {months[now.month - 1]} {now.year}"
+date_pl = (
+    f"{days[now.weekday()]}, "
+    f"{now.day} {months[now.month - 1]} {now.year}"
+)
+
 
 # =========================
-# STRONA KEP
+# POBRANIE STRONY KEP
 # =========================
 
 url = f"https://episkopat.pl/liturgia/{date_iso}"
@@ -42,72 +48,75 @@ response.raise_for_status()
 
 soup = BeautifulSoup(response.text, "html.parser")
 
+# Zamieniamy stronę na zwykły tekst.
+# Dzięki temu nie zależymy od tego,
+# czy KEP użyje h2, div, section itd.
+
+page_text = soup.get_text("\n", strip=True)
+
+lines = []
+
+for line in page_text.splitlines():
+    line = line.strip()
+
+    if line:
+        lines.append(line)
+
 
 # =========================
-# POMOCNICZA FUNKCJA
+# SZUKANIE SEKCJI
 # =========================
 
-def clean(text):
-    return " ".join(text.split()).strip()
+def znajdz_sekcje(start_name, stop_names):
 
+    start_index = None
 
-def pobierz_sekcje(tytul):
-    """
-    Szuka dokładnego H2, np. 'Pierwsze czytanie',
-    a następnie pobiera elementy znajdujące się
-    pomiędzy tym H2 a następnym H2.
-    """
+    for i, line in enumerate(lines):
 
-    heading = None
-
-    for h2 in soup.find_all("h2"):
-        tekst = clean(h2.get_text(" ", strip=True))
-
-        if tekst.rstrip(":").lower() == tytul.lower():
-            heading = h2
+        if line.rstrip(":").strip().lower() == start_name.lower():
+            start_index = i
             break
 
-    if heading is None:
+    if start_index is None:
         return None
 
-    elementy = []
+    result = []
 
-    # Idziemy po kolejnych elementach strony
-    for element in heading.find_all_next():
+    for line in lines[start_index + 1:]:
 
-        # Następny H2 = koniec tej sekcji
-        if element.name == "h2" and element != heading:
+        clean = line.rstrip(":").strip().lower()
+
+        if clean in [x.lower() for x in stop_names]:
             break
 
-        # Interesują nas paragrafy
-        if element.name != "p":
-            continue
-
-        tekst = clean(element.get_text(" ", strip=True))
-
-        if not tekst:
-            continue
-
-        # Pomijamy techniczne elementy strony
-        if "Copyright ©" in tekst:
+        # Pomijamy elementy strony, które nie są czytaniem
+        if "copyright" in line.lower():
             break
 
-        if "Wygląda na to, że Twoja przeglądarka" in tekst:
+        if "wygląda na to, że twoja przeglądarka" in line.lower():
             break
 
-        if "Zgłoś błąd" in tekst:
+        if "zgłoś błąd" in line.lower():
             break
 
-        elementy.append(tekst)
+        result.append(line)
 
-    if not elementy:
+    # Usuwamy powtarzające się linie
+    cleaned = []
+
+    for line in result:
+
+        if line not in cleaned:
+            cleaned.append(line)
+
+    if len(cleaned) < 2:
         return None
 
-    # Pierwszy element = signtura
-    reference = elementy[0]
+    # Pierwsza linia = sygnatura
+    reference = cleaned[0]
 
-    # Pozostałe = właściwa treść
-    text = "\n\n".join(elementy[1:])
+    # Wszystko dalej = treść
+    text = "\n\n".join(cleaned[1:])
 
     return {
         "reference": reference,
@@ -119,17 +128,72 @@ def pobierz_sekcje(tytul):
 # CZYTANIA
 # =========================
 
-first_reading = pobierz_sekcje("Pierwsze czytanie")
+first_reading = znajdz_sekcje(
+    "Pierwsze czytanie",
+    [
+        "Psalm responsoryjny",
+        "Drugie czytanie",
+        "Werset przed Ewangelią (Alleluja)",
+        "Ewangelia"
+    ]
+)
 
-psalm = pobierz_sekcje("Psalm responsoryjny")
+psalm = znajdz_sekcje(
+    "Psalm responsoryjny",
+    [
+        "Drugie czytanie",
+        "Werset przed Ewangelią (Alleluja)",
+        "Ewangelia"
+    ]
+)
 
-second_reading = pobierz_sekcje("Drugie czytanie")
+second_reading = znajdz_sekcje(
+    "Drugie czytanie",
+    [
+        "Werset przed Ewangelią (Alleluja)",
+        "Ewangelia"
+    ]
+)
 
-gospel = pobierz_sekcje("Ewangelia")
+gospel = znajdz_sekcje(
+    "Ewangelia",
+    [
+        "Patroni",
+        "Homilie"
+    ]
+)
 
 
 # =========================
-# DANE
+# USUWANIE KOMENTARZA
+# =========================
+
+if gospel:
+
+    text = gospel["text"]
+
+    # Komentarz księdza zaczyna się po właściwym tekście Ewangelii.
+    # Odcinamy go na charakterystycznych słowach.
+
+    markers = [
+        "Nie ma chyba w Ewangelii",
+        "Miłość nieprzyjaciół nie polega",
+        "„Bądźcie miłosierni"
+    ]
+
+    for marker in markers:
+
+        position = text.find(marker)
+
+        if position >= 0:
+            text = text[:position]
+            break
+
+    gospel["text"] = text.strip()
+
+
+# =========================
+# ZAPIS
 # =========================
 
 data = {
@@ -142,11 +206,12 @@ data = {
 }
 
 
-# =========================
-# ZAPIS
-# =========================
+with open(
+    "readings.json",
+    "w",
+    encoding="utf-8"
+) as file:
 
-with open("readings.json", "w", encoding="utf-8") as file:
     json.dump(
         data,
         file,
@@ -154,8 +219,13 @@ with open("readings.json", "w", encoding="utf-8") as file:
         indent=2
     )
 
-print("Zaktualizowano:", date_iso)
+
+print("================================")
+print("AKTUALIZACJA CZYTAŃ")
+print("================================")
+print("Data:", date_iso)
 print("Pierwsze czytanie:", bool(first_reading))
 print("Psalm:", bool(psalm))
 print("Drugie czytanie:", bool(second_reading))
 print("Ewangelia:", bool(gospel))
+print("================================")
