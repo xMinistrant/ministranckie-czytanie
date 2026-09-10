@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ministranckie Czytanie – NSPJ Żarów</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #222;
+
+            background:
+                linear-gradient(
+                    rgba(20, 20, 20, 0.58),
+                    rgba(20, 20, 20, 0.68)
+                ),
+                url("https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=2000&q=85");
+
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 75px 20px 55px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 44px;
+            text-shadow: 0 4px 18px rgba(0,0,0,0.6);
+        }
+
+        header p {
+            margin-top: 12px;
+            font-size: 18px;
+        }
+
+        main {
+            width: 100%;
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .glowny {
+            background: rgba(255,255,255,0.96);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.3);
+            margin-bottom: 35px;
+        }
+
+        .glowny h2 {
+            margin-top: 0;
+            text-align: center;
+            color: #2f3b4a;
+            font-size: 30px;
+        }
+
+        .data {
+            text-align: center;
+            color: #777;
+            margin-bottom: 25px;
+        }
+
+        .sekcja-czytania {
+            border: 1px solid #ddd;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-top: 15px;
+            background: white;
+        }
+
+        .naglowek {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 19px 20px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .naglowek:hover {
+            background: #f2eee7;
+        }
+
+        .naglowek h3 {
+            margin: 0;
+            font-size: 19px;
+            color: #2f3b4a;
+        }
+
+        .trzy-kropki {
+            font-size: 27px;
+            line-height: 1;
+            color: #666;
+        }
+
+        .tresc {
+            display: none;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .tresc.otwarta {
+            display: block;
+        }
+
+        .tresc p {
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .opoka-box {
+            background: #f7f5f1;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .opoka-box iframe {
+            width: 100%;
+            height: 460px;
+            border: none;
+            display: block;
+        }
+
+        .dol {
+            background: #ded6ca;
+            margin-top: 45px;
+            padding: 45px 20px;
+        }
+
+        .karta {
+            max-width: 900px;
+            margin: 0 auto 25px;
+            background: rgba(255,255,255,0.97);
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .karta h2 {
+            margin-top: 0;
+            color: #2f3b4a;
+        }
+
+        .karta p {
+            line-height: 1.7;
+            font-size: 17px;
+        }
+
+        .przycisk {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 14px 22px;
+            background: #2f3b4a;
+            color: white;
+            text-decoration: none;
+            border-radius: 9px;
+        }
+
+        .przycisk:hover {
+            background: #202a35;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: white;
+            background: #202936;
+        }
+
+        @media (max-width: 600px) {
+
+            header {
+                padding: 55px 15px 40px;
+            }
+
+            header h1 {
+                font-size: 32px;
+            }
+
+            .glowny {
+                padding: 20px;
+            }
+
+            .glowny h2 {
+                font-size: 25px;
+            }
+
+            .naglowek {
+                padding: 17px;
+            }
+
+            .tresc {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Ministranckie Czytanie</h1>
+    <p>Parafia Najświętszego Serca Pana Jezusa w Żarowie</p>
+</header>
+
+
+<main>
+
+    <section class="glowny">
+
+        <h2>📖 Czytania na dziś</h2>
+
+        <div class="data" id="dzisiejsza-data"></div>
+
+
+        <div class="sekcja-czytania">
+
+            <div class="naglowek" onclick="pokaz('pierwsze')">
+                <h3>📖 Pierwsze czytanie</h3>
+                <span class="trzy-kropki">⋮</span>
+            </div>
+
+            <div class="tresc" id="pierwsze">
+                <div class="opoka-box">
+                    <iframe
+                        src="https://opoka.org.pl/liturgia_iframe"
+                        scrolling="no"
+                        frameborder="0">
+                    </iframe>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="sekcja-czytania">
+
+            <div class="naglowek" onclick="pokaz('psalm')">
+                <h3>🎵 Psalm</h3>
+                <span class="trzy-kropki">⋮</span>
+            </div>
+
+            <div class="tresc" id="psalm">
+                <div class="opoka-box">
+                    <iframe
+                        src="https://opoka.org.pl/liturgia_iframe"
+                        scrolling="no"
+                        frameborder="0">
+                    </iframe>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="sekcja-czytania">
+
+            <div class="naglowek" onclick="pokaz('drugie')">
+                <h3>📖 Drugie czytanie</h3>
+                <span class="trzy-kropki">⋮</span>
+            </div>
+
+            <div class="tresc" id="drugie">
+                <div class="opoka-box">
+                    <iframe
+                        src="https://opoka.org.pl/liturgia_iframe"
+                        scrolling="no"
+                        frameborder="0">
+                    </iframe>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="sekcja-czytania">
+
+            <div class="naglowek" onclick="pokaz('ewangelia')">
+                <h3>✝️ Ewangelia</h3>
+                <span class="trzy-kropki">⋮</span>
+            </div>
+
+            <div class="tresc" id="ewangelia">
+                <div class="opoka-box">
+                    <iframe
+                        src="https://opoka.org.pl/liturgia_iframe"
+                        scrolling="no"
+                        frameborder="0">
+                    </iframe>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<section class="dol">
+
+    <div class="karta">
+
+        <h2>👤 O autorze</h2>
+
+        <p>
+            Jestem ministrantem związanym z Parafią Najświętszego Serca
+            Pana Jezusa w Żarowie. Stworzyłem tę stronę, aby ułatwić
+            ministrantom oraz wszystkim zainteresowanym dostęp do
+            codziennych czytań liturgicznych.
+        </p>
+
+        <p>
+            Mam nadzieję, że strona będzie pomocna podczas przygotowania
+            do Mszy Świętej oraz w codziennym poznawaniu Słowa Bożego.
+        </p>
+
+    </div>
+
+
+    <div class="karta">
+
+        <h2>⛪ Historia naszego kościoła</h2>
+
+        <p>
+            Poznaj historię naszego kościoła i naszej parafii.
+        </p>
+
+        <a class="przycisk" href="historia.html">
+            Poznaj historię kościoła
+        </a>
+
+    </div>
+
+</section>
+
+
+<footer>
+    Ministranckie Czytanie – NSPJ Żarów
+</footer>
+
+
+<script>
+
+    function pokaz(id) {
+
+        const element = document.getElementById(id);
+
+        element.classList.toggle("otwarta");
+
+    }
+
+
+    const dni = [
+        "niedziela",
+        "poniedziałek",
+        "wtorek",
+        "środa",
+        "czwartek",
+        "piątek",
+        "sobota"
+    ];
+
+    const miesiace = [
+        "stycznia",
+        "lutego",
+        "marca",
+        "kwietnia",
+        "maja",
+        "czerwca",
+        "lipca",
+        "sierpnia",
+        "września",
+        "października",
+        "listopada",
+        "grudnia"
+    ];
+
+    const data = new Date();
+
+    document.getElementById("dzisiejsza-data").textContent =
+        dni[data.getDay()] + ", " +
+        data.getDate() + " " +
+        miesiace[data.getMonth()] + " " +
+        data.getFullYear();
+
+</script>
+
+</body>
+</html>
