@@ -1,17 +1,11 @@
 {
   "date": "2026-09-10",
-  "date_pl": "czwartek, 10 września 2026",
-  "firstReading": {
-    "reference": "1 Kor 8, 1b-7. 10-13",
-    "text": "Tutaj będzie tekst pierwszego czytania."
-  },
-  "psalm": {
-    "reference": "Ps 139",
-    "text": "Tutaj będzie tekst psalmu."
-  },
+  "date_pl": "Thursday, 10.09.2026",
+  "firstReading": null,
+  "psalm": null,
   "secondReading": null,
   "gospel": {
-    "reference": "Łk 6, 27-38",
-    "text": "Tutaj będzie tekst Ewangelii."
+    "reference": "ks. Przemysław Krakowczyk",
+    "text": "Nie ma chyba w Ewangelii trudniejszego przykazania. I nie ma przykazania, które bardziej odróżnia chrześcijaństwo od naturalnej ludzkiej logiki. Bo ludzka logika podpowiada nam: kochaj tych, którzy cię kochają. Bądź dobry dla tych, którzy są dobrzy dla ciebie. Odpłacaj pięknym za piękne. Jezus mówi: to potrafią wszyscy. Nawet grzesznicy kochają tych, którzy ich kochają. W tym nie ma nic nadzwyczajnego.\n\nMiłość nieprzyjaciół nie polega na uczuciu. Nikt nie każe nam czuć ciepło do człowieka, który nas skrzywdził. Chodzi o wolę: chcieć dobra dla drugiego, nawet gdy wszystko w nas krzyczy, żeby tego nie robić. Modlić się za niego, choć wolimy o nim zapomnieć. Nie odpłacać złem za zło. Święty Augustyn tłumaczy to prosto: kochamy w człowieku to, czym jest jako stworzenie Boże, a odrzucamy zło, które w nim działa. Celem nie jest udawanie, że krzywda się nie wydarzyła. Celem jest to, żeby wróg stał się bratem.\n\n„Bądźcie miłosierni, jak Ojciec wasz jest miłosierny”. To zdanie nadaje sens całemu przykazaniu. Nie kochamy nieprzyjaciół dlatego, że na to zasługują. Kochamy ich, bo Bóg tak kocha. Bóg daje słońce i deszcz dobrym i złym. Nie czeka, aż się poprawią. Nie stawia warunków. To jest wzorzec, do którego Jezus nas wzywa. Miara, którą mierzymy, będzie odmierzona nam. Jeśli jesteśmy surowi, surowo będziemy sądzeni. Jeśli przebaczamy, doświadczymy przebaczenia. Komu najtrudniej nam dziś przebaczyć?"
   }
 }
