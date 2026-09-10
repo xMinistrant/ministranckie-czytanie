@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ministranckie Czytanie – NSPJ Żarów</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f1ea;
+            color: #222;
+        }
+
+        header {
+            background: #2f3b4a;
+            color: white;
+            text-align: center;
+            padding: 45px 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 38px;
+        }
+
+        header p {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        main {
+            max-width: 950px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .czytania {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .czytania h2 {
+            color: #2f3b4a;
+            margin-top: 0;
+        }
+
+        .iframe-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            max-width: 900px;
+            min-height: 700px;
+            border: none;
+        }
+
+        .autor {
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .autor h2 {
+            color: #2f3b4a;
+        }
+
+        .autor p {
+            line-height: 1.7;
+            font-size: 17px;
+        }
+
+        .historia {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .przycisk {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 14px 24px;
+            background: #2f3b4a;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        .przycisk:hover {
+            background: #1f2935;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 25px;
+            background: #2f3b4a;
+            color: white;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Ministranckie Czytanie</h1>
+    <p>Parafia Najświętszego Serca Pana Jezusa w Żarowie</p>
+</header>
+
+<main>
+
+    <section class="czytania">
+
+        <h2>📖 Czytania na dziś</h2>
+
+        <div class="iframe-container">
+
+            <iframe
+                src="https://opoka.org.pl/liturgia_iframe"
+                scrolling="no"
+                frameborder="0">
+            </iframe>
+
+        </div>
+
+    </section>
+
+
+    <section class="autor">
+
+        <h2>👤 O autorze</h2>
+
+        <p>
+            Jestem ministrantem związanym z Parafią Najświętszego Serca
+            Pana Jezusa w Żarowie. Stworzyłem tę stronę, aby ułatwić
+            ministrantom oraz wszystkim zainteresowanym dostęp do
+            codziennych czytań liturgicznych.
+        </p>
+
+        <p>
+            Mam nadzieję, że ta strona będzie pomocna podczas przygotowania
+            do Mszy Świętej oraz w codziennym poznawaniu Słowa Bożego.
+        </p>
+
+    </section>
+
+
+    <section class="historia">
+
+        <h2>⛪ Historia naszego kościoła</h2>
+
+        <p>
+            Chcesz dowiedzieć się więcej o naszym kościele i jego historii?
+        </p>
+
+        <a class="przycisk" href="historia.html">
+            Poznaj historię kościoła
+        </a>
+
+    </section>
+
+</main>
+
+
+<footer>
+    Ministranckie Czytanie – NSPJ Żarów
+</footer>
+
+</body>
+</html>
