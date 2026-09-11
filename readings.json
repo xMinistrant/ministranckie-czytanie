@@ -1,11 +1,11 @@
 {
-  "date": "2026-09-10",
-  "date_pl": "czwartek, 10 września 2026",
+  "date": "2026-09-11",
+  "date_pl": "piątek, 11 września 2026",
   "firstReading": null,
-  "psalm": {
-    "reference": "Ps 139 (138), 1b-3. 13-14b. 23-24 (R.: por. 24b)",
-    "text": "Werset przed Ewangelią:\n\n1 J 4, 12bcd"
-  },
+  "psalm": null,
   "secondReading": null,
-  "gospel": null
+  "gospel": {
+    "reference": "ks. Janusz Chyła",
+    "text": "Potrzebujemy przewodników. Także inni potrzebują naszego prowadzenia. Zależność ta dotyczy rodziców i dzieci, nauczycieli i uczniów, księży i świeckich. Dobrym przewodnikiem może być tylko ten, kto zna drogę i cel. Ze strony złych przewodników, grozi nam niebezpieczeństwo błądzenia po manowcach.\n\nOko to bardzo wrażliwy narząd zmysłu. Od stanu jego zdrowia zależy całe nasze życie. Belka i drzazga to większy lub mniejszy kawałek drewna. Są one w gruncie rzeczy tym samym, a różnica polega tylko na wielkości. Stąd być może tak bardzo drażni nas u innych to, z czym sami mamy problem.\n\nBelka oślepia. To sytuacja człowieka, który nie przyznaje się do własnych grzechów. Widzi je tylko u innych. Chce zmieniać świat korygując bliźnich. Sam trwa w przekonaniu, że nawrócenia nie potrzebuje.\n\nPiętnowanie zła u bliźnich – nawet jeśli jest uzasadnione – nie wystarcza, aby osiągnąć pokój serca. W tym celu konieczne jest przyjęcie miłosierdzia w sakramencie pokuty i pojednania. Ta łaska pozwala patrzeć na Boga, świat, Kościół, bliźnich i siebie oczyszczonym wzrokiem."
+  }
 }
